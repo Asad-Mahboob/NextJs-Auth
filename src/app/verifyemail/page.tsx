@@ -9,11 +9,6 @@ export default function VerifyEmailPage() {
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    const urlToken = window.location.search.split("=")[1];
-    setToken(urlToken || "");
-  }, []);
-
   const verifyEmail = async () => {
     try {
       setLoading(true);
@@ -26,13 +21,17 @@ export default function VerifyEmailPage() {
     } finally {
       setLoading(false);
     }
-
-    useEffect(() => {
-      if (token.length > 0) {
-        verifyEmail();
-      }
-    }, []);
   };
+  useEffect(() => {
+    const urlToken = window.location.search.split("=")[1];
+    setToken(urlToken || "");
+  }, []);
+
+  useEffect(() => {
+    if (token.length > 0) {
+      verifyEmail();
+    }
+  }, [token]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
