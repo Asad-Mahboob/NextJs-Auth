@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { AxiosError } from "axios";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -20,9 +21,15 @@ export default function ForgotPasswordPage() {
       console.log("Password reset email sent successfully", response.data);
       setLoading(false);
       router.push("/login");
-    } catch (error: any) {
-      setError(error.response.data.error);
-      console.log("Error sending password reset email", error.response.data);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        setError(error.response?.data?.error || "Unknown error");
+        console.log("Error sending password reset email", error.response?.data);
+      } else {
+        // Fallback if it's not an Axios error
+        setError("An unknown error occurred");
+        console.log("Unexpected error", error);
+      }
     } finally {
       setLoading(false);
     }

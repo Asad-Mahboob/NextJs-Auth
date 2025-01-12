@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { AxiosError } from "axios";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -24,8 +25,20 @@ export default function SignupPage() {
       console.log("Signup success", response.data);
 
       router.push("/login");
-    } catch (error: any) {
-      console.log("Signup failed", error.message);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        // Safely access the error response when it's an AxiosError
+        console.log(
+          "Signup failed",
+          error.response?.data?.message || error.message
+        );
+      } else if (error instanceof Error) {
+        // Handle general errors
+        console.log("Signup failed", error.message);
+      } else {
+        // Handle unknown error types
+        console.log("Signup failed", "An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }

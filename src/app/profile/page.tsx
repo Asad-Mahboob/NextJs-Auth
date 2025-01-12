@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,8 +11,12 @@ export default function ProfilePage() {
     try {
       await axios.get("/api/users/logout");
       router.push("/login");
-    } catch (error: any) {
-      console.log(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      } else {
+        console.log("An unknown error occurred");
+      }
     }
   };
 
@@ -31,12 +34,7 @@ export default function ProfilePage() {
           {data === "nothing" ? (
             "Nothing"
           ) : (
-            <Link
-              href={`/profile/${data}`}
-              className="underline hover:text-green-400"
-            >
-              {data}
-            </Link>
+            <h1 className="underline hover:text-green-400">{data}</h1>
           )}
         </h2>
         <hr className="border-gray-600 mb-6" />

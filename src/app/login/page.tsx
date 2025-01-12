@@ -29,8 +29,12 @@ export default function LoginPage() {
       console.log("Login success", response.data);
 
       router.push("/profile");
-    } catch (error: any) {
-      console.log("Login failed", error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("Login failed", error.message);
+      } else {
+        console.log("Login failed", "An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -97,7 +101,7 @@ export default function LoginPage() {
             href="/signup"
             className="text-sm text-green-400 hover:underline"
           >
-            Don't have an account? Sign up
+            Dont have an account? Sign up
           </Link>
         </div>
       </div>

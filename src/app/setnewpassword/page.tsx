@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
 export default function SetNewPasswordPage() {
@@ -43,8 +44,17 @@ export default function SetNewPasswordPage() {
       });
       console.log(response.data);
       router.push("/login"); // Redirect to login page after successful password reset
-    } catch (error: any) {
-      setError(error.response?.data?.message || "An error occurred.");
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        // Safely access the error response when it's an AxiosError
+        setError(error.response?.data?.message || "An error occurred.");
+      } else if (error instanceof Error) {
+        // Handle general errors
+        setError(error.message || "An error occurred.");
+      } else {
+        // Handle unknown error types
+        setError("An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
