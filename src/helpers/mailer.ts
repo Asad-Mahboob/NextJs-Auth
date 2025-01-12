@@ -2,19 +2,30 @@ import nodemailer from "nodemailer";
 import User from "@/models/userModel";
 import bcrypt from "bcryptjs";
 
-export const sendEmail = async ({ email, emailType, userId }: any) => {
+// Define the expected type for the parameters
+interface SendEmailParams {
+  email: string;
+  emailType: "VERIFY" | "RESET";
+  userId: string | number; // userId can be either string or number
+}
+
+export const sendEmail = async ({
+  email,
+  emailType,
+  userId,
+}: SendEmailParams) => {
   try {
     const hashedToken = await bcrypt.hash(userId.toString(), 10);
 
     if (emailType === "VERIFY") {
       await User.findByIdAndUpdate(userId, {
         verifyToken: hashedToken,
-        verifyTokenExpiry: Date.now() + 3600000,
+        verifyTokenExpiry: Date.now() + 3600000, // 1 hour expiry
       });
     } else if (emailType === "RESET") {
       await User.findByIdAndUpdate(userId, {
         forgetPasswordToken: hashedToken,
-        forgetPasswordTokenExpiry: Date.now() + 3600000,
+        forgetPasswordTokenExpiry: Date.now() + 3600000, // 1 hour expiry
       });
     }
 
@@ -26,6 +37,7 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
         pass: "f70f14f786c897",
       },
     });
+
     const mailOptions = {
       from: "asadmahboob169@gmail.com",
       to: email,
@@ -36,9 +48,14 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
           ? `<p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}">here</a> to verify your email</p>`
           : `<p>Click <a href="${process.env.DOMAIN}/setnewpassword?token=${hashedToken}">here </a>to reset your password</p>`,
     };
+
     const mailResponse = await transporter.sendMail(mailOptions);
     return mailResponse;
-  } catch (error: any) {
-    throw new Error(error.message);
+  } catch (error: unknown) {
+    // Handle error properly with `unknown`
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An unknown error occurred");
   }
 };
