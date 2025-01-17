@@ -39,7 +39,7 @@ export const sendEmail = async ({
     });
 
     const mailOptions = {
-      from: "asadmahboob169@gmail.com",
+      from: process.env.GMAIL_USER,
       to: email,
       subject:
         emailType === "VERIFY" ? "Verify your email" : "Reset Your Password",
